@@ -372,17 +372,28 @@ InstDOSISR:     ; Install a handler on int 21h for exec (4Bh) calls
 DetectSerial:   ; Find the BIOS address of the specified COM port
                 ; Input COM number in al
                 ; Output port address in ax (0=not present)
-                push            ds
-                mov             bx,040h
-                mov             ds,bx
-                dec             al
-                mov             bl,2
-                mul             bl                      ; Calculate the offset
-                push            si
-                mov             si,ax
-                mov             ax,[si]                 ; Get port address from BIOS
-                pop             si
-                pop             ds
+                cmp             al, 1
+                je              DetectSerialCOM1
+                cmp             al, 2
+                je              DetectSerialCOM2
+                cmp             al, 3
+                je              DetectSerialCOM3
+                cmp             al, 4
+                je              DetectSerialCOM4
+                mov             ax, 0
+                jmp             DetectSerialEND
+DetectSerialCOM1:
+                mov             ax, 3f8h
+                jmp             DetectSerialEND
+DetectSerialCOM2:
+                mov             ax, 2f8h
+                jmp             DetectSerialEND
+DetectSerialCOM3:
+                mov             ax, 3e8h
+                jmp             DetectSerialEND
+DetectSerialCOM4:
+                mov             ax, 2e8h
+DetectSerialEND:
 
                 ; If we found an interface, configure it
                 cmp             ax,0
